@@ -1,5 +1,9 @@
 import { ApiResponse } from '../types';
 
+// Worker URL configuration
+// In production, set VITE_WORKER_URL environment variable in Cloudflare Pages
+// For local development, create a .env file with VITE_WORKER_URL=http://localhost:8787/api
+// If using _redirects proxy, leave empty and it will use /api (same origin)
 const WORKER_URL = import.meta.env.VITE_WORKER_URL || '/api';
 
 export function validateUrl(url: string): { valid: boolean; message?: string } {
@@ -12,7 +16,7 @@ export function validateUrl(url: string): { valid: boolean; message?: string } {
   }
 
   // Reject dangerous protocols
-  const dangerousProtocols = ['javascript:', 'data:', 'file:', 'vbscript:', 'ftp:'];
+  const dangerousProtocols = ['javascript:', '', 'file:', 'vbscript:', 'ftp:'];
   const lowerUrl = url.toLowerCase().trim();
   for (const proto of dangerousProtocols) {
     if (lowerUrl.startsWith(proto)) {
@@ -62,7 +66,9 @@ export async function extractVideo(url: string): Promise<ApiResponse> {
   }
 
   try {
-    const response = await fetch(`${WORKER_URL}/extract`, {
+    const endpoint = `${WORKER_URL}/extract`;
+    
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url }),
@@ -78,10 +84,38 @@ export async function extractVideo(url: string): Promise<ApiResponse> {
       };
     }
 
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      return {
+        success: false,
+        error: {
+          code: 'SERVER_ERROR',
+          message: `Server error (${response.status}). Please try again later.`
+        }
+      };
+    }
+
     const data = await response.json();
     return data;
   } catch (err) {
-    throw new Error('Network error');
+    // Check if it's a configuration issue
+    if (WORKER_URL === '/api') {
+      return {
+        success: false,
+        error: {
+          code: 'CONFIGURATION_ERROR',
+          message: 'The extraction service is not configured. Please set VITE_WORKER_URL environment variable or configure the _redirects proxy. See DEPLOYMENT.md for instructions.'
+        }
+      };
+    }
+    
+    return {
+      success: false,
+      error: {
+        code: 'NETWORK_ERROR',
+        message: 'Could not connect to the extraction service. Please check your connection and try again.'
+      }
+    };
   }
 }
 

@@ -66,55 +66,48 @@ streamfetch/
 
 ## 🚀 Quick Start
 
+> ⚠️ **IMPORTANT**: This project requires **TWO separate deployments**:
+> 1. Cloudflare Worker (backend) — deployed via Wrangler
+> 2. Cloudflare Pages (frontend) — deployed via Cloudflare Pages dashboard
+>
+> **Do NOT use `wrangler deploy` as the build command on Cloudflare Pages.**
+>
+> See [DEPLOYMENT.md](./DEPLOYMENT.md) for complete step-by-step instructions.
+
 ### Prerequisites
 
 - Node.js 18+
 - npm
 - Cloudflare account (free)
 
-### 1. Frontend Setup
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-```
-
-### 2. Worker Setup
+### 1. Deploy the Worker (Backend)
 
 ```bash
 cd worker
-
-# Install Wrangler
 npm install
-
-# Login to Cloudflare
 npx wrangler login
-
-# Run locally for development
-npx wrangler dev
-
-# Deploy to Cloudflare
 npx wrangler deploy
 ```
 
-### 3. Connect Frontend to Worker
+Copy the deployed URL (e.g., `https://streamfetch-worker.xxx.workers.dev`).
 
-Set the Worker URL in the frontend. Create a `.env` file in the frontend root:
+### 2. Deploy the Frontend (Cloudflare Pages)
 
-```
-VITE_WORKER_URL=https://streamfetch-worker.<your-subdomain>.workers.dev/api
-```
+In the Cloudflare Pages dashboard:
+- **Build command**: `npm run build`
+- **Output directory**: `dist`
+- **Environment variable**: `VITE_WORKER_URL` = your Worker URL from step 1
 
-For local development with the Worker running locally:
+### 3. Local Development
 
-```
-VITE_WORKER_URL=http://localhost:8787/api
+```bash
+# Terminal 1: Run the Worker
+cd worker && npx wrangler dev
+
+# Terminal 2: Run the Frontend
+npm install
+echo "VITE_WORKER_URL=http://localhost:8787/api" > .env
+npm run dev
 ```
 
 ## 🌐 Deployment

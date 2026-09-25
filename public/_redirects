@@ -1,0 +1,13 @@
+# Cloudflare Pages Redirects
+# This proxies /api/* requests to your Cloudflare Worker
+#
+# INSTRUCTIONS:
+# 1. Deploy the Worker first (see DEPLOYMENT.md)
+# 2. Replace YOUR_WORKER_URL below with your actual Worker URL
+#    Example: https://streamfetch-worker.myaccount.workers.dev
+# 3. Rebuild and redeploy the frontend
+#
+# Format: /from /to status_code
+# The :splat captures everything after /api/
+
+/api/*  https://YOUR_WORKER_URL.workers.dev/api/:splat  200
