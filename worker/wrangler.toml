@@ -1,0 +1,16 @@
+name = "streamfetch-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# No environment variables required for the default free deployment.
+
+# Rate limiting configuration
+RATE_LIMIT = 10
+RATE_WINDOW = 60
+
+# Deployment notes:
+# 1. Install Wrangler: npm install -g wrangler
+# 2. Login: npx wrangler login
+# 3. Deploy: npx wrangler deploy
+# 4. The worker will be available at: https://streamfetch-worker.<your-subdomain>.workers.dev
