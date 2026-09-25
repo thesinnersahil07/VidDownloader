@@ -16,7 +16,7 @@ export function validateUrl(url: string): { valid: boolean; message?: string } {
   }
 
   // Reject dangerous protocols
-  const dangerousProtocols = ['javascript:', '', 'file:', 'vbscript:', 'ftp:'];
+  const dangerousProtocols = ['javascript:', 'data:', 'file:', 'vbscript:', 'ftp:'];
   const lowerUrl = url.toLowerCase().trim();
   for (const proto of dangerousProtocols) {
     if (lowerUrl.startsWith(proto)) {
